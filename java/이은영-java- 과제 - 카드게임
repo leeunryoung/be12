@@ -1,0 +1,146 @@
+import java.util.*;
+
+// 카드 클래스
+class Card {
+    private String suit;
+    private String rank;
+
+    public Card(String suit, String rank) {
+        this.suit = suit;
+        this.rank = rank;
+    }
+
+    public int getValue() {
+        switch (rank) {
+            case "J": return 11;
+            case "Q": return 12;
+            case "K": return 13;
+            case "A": return 14;
+            default: return Integer.parseInt(rank);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return rank + " of " + suit;
+    }
+}
+
+// 덱 클래스
+class Deck {
+    private List<Card> cards;
+
+    public Deck() {
+        cards = new ArrayList<>();
+        String[] suits = {"Hearts", "Diamonds", "Clubs", "Spades"};
+        String[] ranks = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
+
+        for (String suit : suits) {
+            for (String rank : ranks) {
+                cards.add(new Card(suit, rank));
+            }
+        }
+        shuffle();
+    }
+
+    public void shuffle() {
+        Collections.shuffle(cards);
+    }
+
+    public Card drawCard() {
+        return cards.isEmpty() ? null : cards.remove(0);
+    }
+}
+
+// 플레이어 클래스
+class Player {
+    private String name;
+    private Queue<Card> hand;
+
+    public Player(String name) {
+        this.name = name;
+        hand = new LinkedList<>();
+    }
+
+    public void receiveCard(Card card) {
+        hand.offer(card);
+    }
+
+    public Card playCard() {
+        return hand.poll();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getCardCount() {
+        return hand.size();
+    }
+}
+
+// 게임 클래스
+class Game {
+    private Player player1;
+    private Player player2;
+    private Deck deck;
+
+    public Game(String name1, String name2) {
+        player1 = new Player(name1);
+        player2 = new Player(name2);
+        deck = new Deck();
+    }
+
+    public void dealCards() {
+        for (int i = 0; i < 52; i++) {
+            if (i % 2 == 0) {
+                player1.receiveCard(deck.drawCard());
+            } else {
+                player2.receiveCard(deck.drawCard());
+            }
+        }
+    }
+
+    public void play() {
+        dealCards();
+        int rounds = 26;
+        int p1Score = 0, p2Score = 0;
+
+        for (int i = 1; i <= rounds; i++) {
+            Card c1 = player1.playCard();
+            Card c2 = player2.playCard();
+
+            System.out.println("Round " + i + ": " + player1.getName() + " (" + c1 + ") vs " + player2.getName() + " (" + c2 + ")");
+
+            if (c1.getValue() > c2.getValue()) {
+                p1Score++;
+                System.out.println("Winner: " + player1.getName());
+            } else if (c2.getValue() > c1.getValue()) {
+                p2Score++;
+                System.out.println("Winner: " + player2.getName());
+            } else {
+                System.out.println("It's a tie!");
+            }
+        }
+
+        System.out.println("\nFinal Score:");
+        System.out.println(player1.getName() + ": " + p1Score);
+        System.out.println(player2.getName() + ": " + p2Score);
+
+        if (p1Score > p2Score) {
+            System.out.println("Overall Winner: " + player1.getName());
+        } else if (p2Score > p1Score) {
+            System.out.println("Overall Winner: " + player2.getName());
+        } else {
+            System.out.println("The game is a tie!");
+        }
+    }
+}
+
+// 메인 실행 클래스
+public class CardGameApp {
+    public static void main(String[] args) {
+        Game game = new Game("똘이", "남수");
+        game.play();
+    }
+}
